@@ -2,36 +2,14 @@ import streamlit as st
 import time
 from datetime import datetime, timedelta
 import uuid
-import json
-import os
 
 st.set_page_config(page_title="Κέντρο Ελέγχου Εταιρείας", layout="wide")
 st.sidebar.title("Μενού Εφαρμογής")
 menu = st.sidebar.radio("Επιλέξτε Ενότητα:", ["🏠 Αρχική", "🚑 Live Παρακολούθηση", "📋 Πρόγραμμα Διακομιδών"])
 
-NAMES_FILE = "names.json"
-
-# --- ΣΥΣΤΗΜΑ ΑΠΟΘΗΚΕΥΣΗΣ ΟΝΟΜΑΤΩΝ ---
-def load_names():
-    default_names = ["Τ12", "Τ16", "Τ16Β", "Τ16Δ", "Νέο 5", "Νέο 6"]
-    if os.path.exists(NAMES_FILE):
-        try:
-            with open(NAMES_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                if len(data) == 6:
-                    return data
-                else:
-                    return default_names
-        except:
-            return default_names
-    return default_names
-
-def save_names(names):
-    with open(NAMES_FILE, "w", encoding="utf-8") as f:
-        json.dump(names, f, ensure_ascii=False)
-
-if "amb_names" not in st.session_state:
-    st.session_state.amb_names = load_names()
+# Αρχικοποίηση δεδομένων
+if "names" not in st.session_state:
+    st.session_state.names = ["Τ12", "Τ16", "Τ16Β", "Τ16Δ", "Ασθενοφόρο 5", "Ασθενοφόρο 6"]
 
 if "amb" not in st.session_state:
     st.session_state.amb = {}
@@ -41,43 +19,63 @@ if "amb" not in st.session_state:
 if "trips" not in st.session_state:
     st.session_state.trips = []
 
+# ==========================================
+# ΑΡΧΙΚΗ ΣΕΛΙΔΑ
+# ==========================================
 if menu == "🏠 Αρχική":
-    st.markdown("<h1 style='text-align: center; color: #FF4B4B; font-size: 50px;'>🚑 Καλώς ήρθατε στην Εταιρεία μας</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align: center; color: #555;'>Η Νούμερο 1 Επιλογή στην Άμεση Ανταπόκριση και τις Διακομιδές</h3>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #FF4B4B; font-size: 50px;'>🚑 Καλώς ήρθατε</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; color: #555;'>Ηγετική Παρουσία στις Υπηρεσίες Υγείας και Διακομιδών</h3>", unsafe_allow_html=True)
     st.write("---")
+    
     st.markdown("""
-    ### 🏆 Η Αριστεία είναι ο Πρότυπό μας
-    Στην **Εταιρεία μας**, δεν κάνουμε απλώς τη δουλειά μας· θέτουμε τα πρότυπα της αγοράς. Είμαστε περήφανοι που θεωρούμαστε οι **απόλυτοι ηγέτες** στον τομέα των υπηρεσιών υγείας και διακομιδών.
-    Διαθέτουμε τον **πιο σύγχρονο και άρτια εξοπλισμένο στόλο ασθενοφόρων** στην περιοχή. Κάθε όχημά μας είναι ένα κινούμενο κέντρο εντατικής φροντίδας.
-    Πίσω από το τιμόνι βρίσκονται τα **πιο έμπειρα και καταρτισμένα πληρώματα**. Λειτουργούμε **24 ώρες το 24ωρο, 7 ημέρες την εβδομάδα**.
-    """)
-    st.write("---")
-    st.success("👈 Χρησιμοποιήστε το μενού στα αριστερά για να μεταβείτε στις άλλες ενότητες.")
+    ### 🏆 Το Όραμά μας
+    Στην εταιρεία μας, δεσμευόμαστε στην παροχή υπηρεσιών διακομιδής και άμεσης ανταπόκρισης υψηλών προδιαγραφών. Θέτουμε ως προτεραιότητα την ασφάλεια, την αξιοπιστία και την άριστη εξυπηρέτηση των ασθενών, αποτελώντας τον αξιόπιστο συνεργάτη των νοσηλευτικών ιδρυμάτων και των οικογενειών.
 
+    ### 🚑 Σύγχρονος Στόλος & Τεχνολογία
+    Επενδύουμε διαρκώς στον εκσυγχρονισμό του εξοπλισμού μας. Ο στόλος των ασθενοφόρων μας τηρεί τις αυστηρότερες προδιαγραφές ασφαλείας και είναι εξοπλισμένος με προηγμένα συστήματα ιατρικής υποστήριξης. Κάθε μεταφορά πραγματοποιείται με γνώμονα τη μέγιστη δυνατή φροντίδα και άνεση για τον ασθενή.
+
+    ### 👨‍⚕️ Εξειδικευμένο Ανθρώπινο Δυναμικό
+    Η δύναμή μας έγκειται στους ανθρώπους μας. Τα πληρώματα των ασθενοφόρων στελεχώνονται αποκλειστικά από πιστοποιημένους διασώστες και έμπειρους οδηγούς. Με υψηλό αίσθημα ευθύνης και επαγγελματισμό, διαχειρίζονται κάθε περιστατικό με ακρίβεια, εχεμύθεια και σεβασμό προς τον άνθρωπο.
+
+    ### ⏱️ Διαθεσιμότητα 24/7
+    Αντιλαμβανόμαστε ότι οι ανάγκες για μεταφορά ασθενών δεν έχουν ωράριο. Γι' αυτόν τον λόγο, οι υπηρεσίες μας βρίσκονται σε πλήρη επιχειρησιακή ετοιμότητα **24 ώρες το 24ωρο, 365 ημέρες τον χρόνο**, έτοιμες να ανταποκριθούν άμεσα και αποτελεσματικά σε κάθε κάλεσμα.
+    """)
+
+# ==========================================
+# LIVE ΠΑΡΑΚΟΛΟΥΘΗΣΗ
+# ==========================================
 elif menu == "🚑 Live Παρακολούθηση":
     st.title("🚑 Κέντρο Παρακολούθησης Ασθενοφόρων")
     
+    # Εδώ επιτρέπουμε την αλλαγή ονόματος με απλό τρόπο
+    with st.expander("⚙️ Επεξεργασία Ονομάτων Στόλου (Πατήστε για άνοιγμα)"):
+        c1, c2 = st.columns(2)
+        with c1:
+            st.session_state.names[0] = st.text_input("Όνομα 1ου", st.session_state.names[0])
+            st.session_state.names[1] = st.text_input("Όνομα 2ου", st.session_state.names[1])
+            st.session_state.names[2] = st.text_input("Όνομα 3ου", st.session_state.names[2])
+        with c2:
+            st.session_state.names[3] = st.text_input("Όνομα 4ου", st.session_state.names[3])
+            st.session_state.names[4] = st.text_input("Όνομα 5ου", st.session_state.names[4])
+            st.session_state.names[5] = st.text_input("Όνομα 6ου", st.session_state.names[5])
+        st.info("Οι αλλαγές αποθηκεύονται αυτόματα.")
+
     @st.fragment(run_every=1.0)
     def draw_ambulances():
         for i in range(1, 7):
             a = st.session_state.amb[i]
             with st.container(border=True):
                 if not a["active"]:
-                    c1, c2, c3, c4, c5, c6 = st.columns([1.2, 1, 1, 1, 0.8, 0.5])
+                    c1, c2, c3, c4, c5 = st.columns([1, 1, 1, 1, 0.8])
                     with c1:
-                        new_name = st.text_input("Όνομα", value=st.session_state.amb_names[i-1], key=f"n_{i}")
-                        if new_name != st.session_state.amb_names[i-1]:
-                            st.session_state.amb_names[i-1] = new_name
-                            save_names(st.session_state.amb_names)
-                    with c2:
                         a["crew"] = st.text_input("Πλήρωμα", value=a["crew"], key=f"c_{i}", placeholder="Ονόματα")
-                    with c3:
+                    with c2:
                         a["origin"] = st.text_input("Από", key=f"o_{i}")
-                    with c4:
+                    with c3:
                         a["dest"] = st.text_input("Προς", key=f"d_{i}")
-                    with c5:
+                    with c4:
                         mins = st.number_input("Λεπτά", min_value=1, max_value=180, value=15, key=f"m_{i}")
-                    with c6:
+                    with c5:
                         st.write("")
                         st.write("")
                         if st.button("▶", key=f"b_{i}", use_container_width=True, type="primary"):
@@ -88,9 +86,9 @@ elif menu == "🚑 Live Παρακολούθηση":
                                 st.rerun()
                             else:
                                 st.warning("Συμπλήρωσε διαδρομή.")
-                    st.markdown(f"### 🚑 {st.session_state.amb_names[i-1]}")
+                    st.markdown(f"### 🚑 {st.session_state.names[i-1]}")
                 else:
-                    st.markdown(f"### 🚑 {st.session_state.amb_names[i-1]}")
+                    st.markdown(f"### 🚑 {st.session_state.names[i-1]}")
                     col_info, col_prog, col_timer, col_btn = st.columns([2, 1.5, 1.2, 0.8])
                     with col_info:
                         if a["crew"]:
@@ -116,18 +114,22 @@ elif menu == "🚑 Live Παρακολούθηση":
                             st.rerun()
     draw_ambulances()
 
+# ==========================================
+# ΠΡΟΓΡΑΜΜΑ ΔΙΑΚΟΜΙΔΩΝ
+# ==========================================
 elif menu == "📋 Πρόγραμμα Διακομιδών":
     st.title("📋 Πρόγραμμα Διακομιδών")
-    st.subheader("Καταχώρηση Νέας Διακομιδής")
     
     with st.form("trip_form", clear_on_submit=True):
+        st.subheader("Καταχώρηση Νέας Διακομιδής")
         patient = st.text_input("Όνομα Ασθενούς")
         trip_date = st.date_input("Ημερομηνία")
         trip_time = st.text_input("Ώρα Έναρξης")
         trip_end = st.text_input("Ώρα Τέλους")
         from_loc = st.text_input("Από")
         to_loc = st.text_input("Προς")
-        amb_choice = st.selectbox("Επιλογή Ασθενοφόρου", st.session_state.amb_names)
+        # Εδώ διαλέγεις από τα ονόματα που έφτιαξες
+        amb_choice = st.selectbox("Επιλογή Ασθενοφόρου", st.session_state.names)
         notes = st.text_input("Σημειώσεις")
         
         if st.form_submit_button("Καταχώρηση", type="primary"):
@@ -143,4 +145,30 @@ elif menu == "📋 Πρόγραμμα Διακομιδών":
     if not st.session_state.trips:
         st.info("Δεν υπάρχουν προγραμματισμένες διακομιδές.")
     else:
-        st.subhe
+        st.subheader("Πρόγραμμα ανά Ασθενοφόρο")
+        # 6 στήλες
+        cols = st.columns(6)
+        
+        for idx, amb_name in enumerate(st.session_state.names):
+            with cols[idx]:
+                st.markdown(f"### 🚑 {amb_name}")
+                amb_trips = [t for t in st.session_state.trips if t['amb'] == amb_name]
+                amb_trips = sorted(amb_trips, key=lambda x: (str(x['date']), str(x['time'])))
+                
+                if not amb_trips:
+                    st.write("Κενό.")
+                else:
+                    for trip in amb_trips:
+                        st.text(f"📅 {trip['date']}")
+                        st.text(f"🕒 {trip['time']} - {trip['end']}")
+                        st.text(f"👤 {trip['patient']}")
+                        st.text(f"📍 Από: {trip['from']}")
+                        st.text(f"🏁 Προς: {trip['to']}")
+                        
+                        if trip.get('notes'):
+                            st.text(f"📝 {trip['notes']}")
+                            
+                        if st.button("🗑️ Διαγραφή", key=f"del_{trip['id']}"):
+                            st.session_state.trips = [t for t in st.session_state.trips if str(t['id']) != str(trip['id'])]
+                            st.rerun()
+                        st.write("---")
